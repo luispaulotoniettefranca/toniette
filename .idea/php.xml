@@ -57,6 +57,10 @@
       <path value="$PROJECT_DIR$/vendor/react/promise-timer" />
       <path value="$PROJECT_DIR$/vendor/react/cache" />
       <path value="$PROJECT_DIR$/vendor/ratchet/rfc6455" />
+      <path value="$PROJECT_DIR$/vendor/toniette/datalayer" />
+      <path value="$PROJECT_DIR$/vendor/toniette/uploader" />
+      <path value="$PROJECT_DIR$/vendor/toniette/router" />
+      <path value="$PROJECT_DIR$/vendor/toniette/optimizer" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.0" />

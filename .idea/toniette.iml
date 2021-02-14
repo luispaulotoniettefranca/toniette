@@ -60,6 +60,11 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/promise-timer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/cache" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ratchet/rfc6455" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/toniette/datalayer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/toniette/uploader" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/toniette/router" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/toniette/optimizer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
