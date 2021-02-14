@@ -1,0 +1,54 @@
+<?php $this->layout('admin/__theme', ["seo" => $seo]) ?>
+<?php $this->start('main') ?>
+    <style>
+        .bi-plus {
+            fill: white;
+        }
+        .bi-pencil {
+            fill: green;
+        }
+        .bi-x-circle {
+            fill: red;
+        }
+    </style>
+    <div class="container mt-5 mb-2">
+        <a href="<?= url("admin/role/create") ?>">
+            <button class="btn btn-primary">
+                NEW ROLE <?= icon("plus") ?>
+            </button>
+        </a>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <table class="table table-bordered table-striped text-center">
+            <thead>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+            <? foreach ($roles as $role): ?>
+                <tr>
+                    <td><?= $role->id ?></td>
+                    <td><?= $role->name ?></td>
+                    <td>
+                        <div class="row">
+                            <div class="col-6 border-right">
+                                <a href="<?= url("admin/role/{$role->id}/edit") ?>">
+                                    <?= icon("pencil") ?>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="<?= url("admin/role/{$role->id}/destroy") ?>">
+                                    <?= icon("x-circle") ?>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            <? endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+
+<?php $this->stop() ?>

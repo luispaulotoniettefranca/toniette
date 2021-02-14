@@ -1,0 +1,44 @@
+{
+    "name": "toniette/toniette",
+    "require": {
+        "php": "8.*",
+        "toniette/optimizer": "dev-master",
+        "league/plates": "^3.3",
+        "cboden/ratchet": "^0.4.3",
+        "dompdf/dompdf": "^0.8.6",
+        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/promises": "^1.4",
+        "phpmailer/phpmailer": "^6.2",
+        "robmorgan/phinx": "0.12.4",
+        "monolog/monolog": ">=2.2.0",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "larapack/dd": "^1.1",
+        "ext-readline": "*",
+        "doctrine/cache": "^1.10",
+        "matthiasmullie/minify": ">=1.3.66",
+        "toniette/router": "dev-master",
+        "toniette/uploader": "dev-master",
+        "toniette/datalayer": "dev-master",
+        "symfony/console": "^5.2",
+        "toniette/paginator": "^1.0",
+        "toniette/cropper": "^1.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Source\\": "source/"
+        },
+        "files": [
+          "source/Boot/Config.php",
+          "source/Boot/Helpers.php",
+          "source/Boot/Boot.php"
+        ]
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "luispaulotoniettefranca",
+            "email": "luis_ti@outlook.com"
+        }
+    ]
+}
