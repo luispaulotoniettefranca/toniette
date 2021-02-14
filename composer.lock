@@ -3582,12 +3582,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/luispaulotoniettefranca/datalayer.git",
-                "reference": "8c5995d63f2b9d03a8994d2ea661d2d66b527862"
+                "reference": "cf76a1be2002d12d3362d3577ef6f3f4d7dbce6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luispaulotoniettefranca/datalayer/zipball/8c5995d63f2b9d03a8994d2ea661d2d66b527862",
-                "reference": "8c5995d63f2b9d03a8994d2ea661d2d66b527862",
+                "url": "https://api.github.com/repos/luispaulotoniettefranca/datalayer/zipball/cf76a1be2002d12d3362d3577ef6f3f4d7dbce6a",
+                "reference": "cf76a1be2002d12d3362d3577ef6f3f4d7dbce6a",
                 "shasum": ""
             },
             "require": {
@@ -3607,9 +3607,9 @@
             ],
             "description": "The data layer is a persistent abstraction component of your database that PDO",
             "support": {
-                "source": "https://github.com/luispaulotoniettefranca/datalayer/tree/master"
+                "source": "https://github.com/luispaulotoniettefranca/datalayer/tree/1.0.0"
             },
-            "time": "2021-02-11T12:40:47+00:00"
+            "time": "2021-02-13T17:17:39+00:00"
         },
         {
             "name": "toniette/optimizer",
@@ -3617,12 +3617,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/luispaulotoniettefranca/optimizer.git",
-                "reference": "83b776e3eabecfc680a03dd54363979161e5eb3f"
+                "reference": "9a85b838670ea4a4bbbd96bd6e0779660f7c43fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luispaulotoniettefranca/optimizer/zipball/83b776e3eabecfc680a03dd54363979161e5eb3f",
-                "reference": "83b776e3eabecfc680a03dd54363979161e5eb3f",
+                "url": "https://api.github.com/repos/luispaulotoniettefranca/optimizer/zipball/9a85b838670ea4a4bbbd96bd6e0779660f7c43fe",
+                "reference": "9a85b838670ea4a4bbbd96bd6e0779660f7c43fe",
                 "shasum": ""
             },
             "require": {
@@ -3641,9 +3641,9 @@
                 "MIT"
             ],
             "support": {
-                "source": "https://github.com/luispaulotoniettefranca/optimizer/tree/master"
+                "source": "https://github.com/luispaulotoniettefranca/optimizer/tree/1.0.0"
             },
-            "time": "2021-02-11T17:09:48+00:00"
+            "time": "2021-02-13T17:28:52+00:00"
         },
         {
             "name": "toniette/paginator",
@@ -3698,12 +3698,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/luispaulotoniettefranca/router.git",
-                "reference": "060fec3bc9572268941ad814444de7fc17b8812d"
+                "reference": "2e2c644fa36a8d39fb76741ec878aecd0fbb5c30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luispaulotoniettefranca/router/zipball/060fec3bc9572268941ad814444de7fc17b8812d",
-                "reference": "060fec3bc9572268941ad814444de7fc17b8812d",
+                "url": "https://api.github.com/repos/luispaulotoniettefranca/router/zipball/2e2c644fa36a8d39fb76741ec878aecd0fbb5c30",
+                "reference": "2e2c644fa36a8d39fb76741ec878aecd0fbb5c30",
                 "shasum": ""
             },
             "require": {
@@ -3729,9 +3729,9 @@
             ],
             "description": "A classic Router is easy, fast and extremely uncomplicated. Create and manage your routes in minutes!",
             "support": {
-                "source": "https://github.com/luispaulotoniettefranca/router/tree/master"
+                "source": "https://github.com/luispaulotoniettefranca/router/tree/1.0.0"
             },
-            "time": "2021-02-11T12:05:19+00:00"
+            "time": "2021-02-13T17:18:35+00:00"
         },
         {
             "name": "toniette/uploader",
@@ -3739,12 +3739,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/luispaulotoniettefranca/uploader.git",
-                "reference": "15ab27db659185ddd2915724c8b107b72e73aa4c"
+                "reference": "3432d8c02dda6a6e44ca2bb742fceea4bdfd01e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luispaulotoniettefranca/uploader/zipball/15ab27db659185ddd2915724c8b107b72e73aa4c",
-                "reference": "15ab27db659185ddd2915724c8b107b72e73aa4c",
+                "url": "https://api.github.com/repos/luispaulotoniettefranca/uploader/zipball/3432d8c02dda6a6e44ca2bb742fceea4bdfd01e3",
+                "reference": "3432d8c02dda6a6e44ca2bb742fceea4bdfd01e3",
                 "shasum": ""
             },
             "require": {
@@ -3766,9 +3766,9 @@
             ],
             "description": "It is a easy PHP upload manager for images, files and media in your application",
             "support": {
-                "source": "https://github.com/luispaulotoniettefranca/uploader/tree/master"
+                "source": "https://github.com/luispaulotoniettefranca/uploader/tree/1.0.0"
             },
-            "time": "2021-02-11T10:43:14+00:00"
+            "time": "2021-02-13T17:17:23+00:00"
         }
     ],
     "packages-dev": [],
