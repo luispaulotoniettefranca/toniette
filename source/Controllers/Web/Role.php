@@ -3,13 +3,14 @@
 namespace Source\Controllers\Web;
 
 
+use Source\Core\ResourceInterface;
 use Toniette\Router\Router;
 use JetBrains\PhpStorm\NoReturn;
 use Toniette\Router\Request;
 use Source\Models\Authorization\Permission;
 use Source\Models\Authorization\RolePermission;
 
-class Role extends \Source\Core\Controller implements \Source\Core\ResourceInterface
+class Role extends \Source\Core\Controller implements ResourceInterface
 {
     #[NoReturn] public function __construct(Router $router)
     {

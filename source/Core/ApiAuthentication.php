@@ -70,4 +70,5 @@ class ApiAuthentication extends Controller
         }
         return $user;
     }
+
 }

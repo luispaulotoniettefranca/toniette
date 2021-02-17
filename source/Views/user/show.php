@@ -3,10 +3,9 @@
 
 
 <div class="container text-center mt-5 justify-content-center">
-    <? if (session()->user->image && file_exists(CONF_BASE_DIR . DIRECTORY_SEPARATOR
-            .  session()->user->image)): ?>
+    <? if ($user->image): ?>
         <img width="72" height="72" class="ml-1 rounded-circle"
-             src="<?= url(session()->user->image) ?>" alt="UserProfileImage">
+             src="<?= url($user->image) ?>" alt="UserProfileImage">
     <? else: ?>
         <img class="mb-4" src="<?= CONF_SEO_IMAGE ?>" alt="" width="72" height="72">
     <? endif; ?>

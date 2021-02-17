@@ -14,9 +14,8 @@
         <? endif; ?>
         </p>
         <p class="col-12"><b>Contact the webmaster: <?= CONF_WEBMASTER_CONTACT ?></b></p>
-        <a href="<?= url() ?>"><?= icon("arrow-left-square-fill") ?></a>
+        <button class="btn btn-primary" onclick="javascript: history.back();"><?= icon("arrow-left-square-fill") ?> GO BACK!</button>
     </div>
 </div>
-
 
 <?php $this->stop() ?>

@@ -30,6 +30,9 @@ class User extends \Source\Core\Controller implements ResourceInterface
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $user = (new \Source\Models\User())->findById($req->key);
+        if(!$user) {
+            redirect("error/404/" . urlencode("Sorry, this user isn't found"));
+        }
         response()->view("user/show", ["user" => $user],
             seo("User Details", "User details page", ["user", "details"]));
     }

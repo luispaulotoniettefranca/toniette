@@ -28,7 +28,9 @@
                     <? endforeach; ?>
                 </select>
             </div>
+            <? if ($user->image ): ?>
             <img src="<?= url($user->image) ?>" alt="profile" width="72" height="72">
+            <? endif; ?>
             <div class="form-group">
                 <label for="image">Profile Image</label>
                 <input class="form-control-file" type="file" name="image" id="image">

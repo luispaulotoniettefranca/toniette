@@ -3,6 +3,7 @@
 
 namespace Source\Controllers\Web;
 
+use Source\Core\ResourceInterface;
 use Toniette\Router\Router;
 use JetBrains\PhpStorm\NoReturn;
 use Source\Core\Authentication;
