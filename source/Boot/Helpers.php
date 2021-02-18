@@ -249,6 +249,22 @@ function session(): Session
     return new Session();
 }
 
+/**
+ * @return PDO|null
+ */
+function pdo(): PDO|null
+{
+    return new PDO(
+        DATA_LAYER_CONFIG["driver"] .
+        ":host=" . DATA_LAYER_CONFIG["host"] .
+        ";dbname=" . DATA_LAYER_CONFIG["dbname"] .
+        ";port=" . DATA_LAYER_CONFIG["port"],
+        DATA_LAYER_CONFIG["username"],
+        DATA_LAYER_CONFIG["passwd"],
+        DATA_LAYER_CONFIG["options"]
+    );
+}
+
 
 /**
  * @param string $title
@@ -326,6 +342,7 @@ function is_passwd(string $pass): bool
  * ###   PERMISSIONS   ###
  * #######################
  * @param Router $router
+ * @var PDO $PDO
  * update permissions and role_permissions tables
  */
 function dispatch(Router $router): void
@@ -357,17 +374,16 @@ function dispatch(Router $router): void
                 $root[] = $rootPermission->id;
             }
         }
+
         $routes = implode(", ", array_filter($routes, function ($r) {
             return !is_null($r);
         }));
-        $permission = new Permission();
-        $permission->delete("id NOT IN ({$routes})", "");
+        pdo()->exec("DELETE FROM `permissions` WHERE `id` NOT IN ({$routes})");
 
         $root = implode(", ", array_filter($root, function ($r) {
             return !is_null($r);
         }));
-        $rootPermission = new \Source\Models\Authorization\RolePermission();
-        $rootPermission->delete("role = {$rootRole} AND id NOT IN ({$root})", "");
+        pdo()->exec("DELETE FROM `permissions` WHERE `role` = {$rootRole} AND `id` NOT IN ({$root})");
     }
     $router->dispatch();
 }

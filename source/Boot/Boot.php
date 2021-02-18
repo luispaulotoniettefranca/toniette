@@ -1,5 +1,6 @@
 <?php
 
+
 // SESSION LIFETIME MATURITY VERIFY
 if (session()->has("auth")) {
     if (session()->maturity < time()) {

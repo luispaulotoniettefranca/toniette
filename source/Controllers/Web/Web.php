@@ -15,7 +15,6 @@ use Toniette\Router\Request;
  */
 class Web extends \Source\Core\Controller
 {
-
     /**
      * Web constructor.
      * @param Router $req
@@ -70,5 +69,4 @@ class Web extends \Source\Core\Controller
             seo("ERROR | " . $req->errcode,
                 "ERROR | " . $req->errcode, [], CONF_SEO_ERROR_IMAGE));
     }
-
 }

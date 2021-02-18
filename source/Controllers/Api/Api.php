@@ -9,7 +9,6 @@ use Toniette\Router\Router;
 
 class Api extends \Source\Core\Controller
 {
-
     #[NoReturn] public function __construct(Router $router)
     {
         parent::__construct(false, $router);

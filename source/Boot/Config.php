@@ -40,6 +40,7 @@ define("CONF_DEBUG", true);
 /**
  * DATES
  */
+date_default_timezone_set('America/Sao_Paulo');
 define("CONF_DATETIME_BR", "d/m/Y H:i:s");
 define("CONF_DATE_BR", "d/m/Y");
 define("CONF_TIME_BR", "H:i:s");
