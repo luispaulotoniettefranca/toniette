@@ -55,7 +55,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
 
         $user = new \Source\Models\User();
 
-        if($_FILES["image"]) {
+        if($_FILES["image"]["name"]) {
             $image = new Image(CONF_STORAGE_DIR, CONF_STORAGE_IMAGE_DIR);
             try {
                 $user->image = $image->upload($_FILES["image"], uniqid($req->name), 400);
@@ -71,7 +71,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
 
         if (!$user->save()) {
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
-        } else {
+        } else if ($user->id == session()->user->id) {
             session()->set("user", [
                 "id" => (int)$user->id,
                 "name" => $user->name,
@@ -124,7 +124,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
 
         $user = (new \Source\Models\User())->findById($req->key);
 
-        if($_FILES["image"]) {
+        if($_FILES["image"]["name"]) {
             $image = new Image(CONF_STORAGE_DIR, CONF_STORAGE_IMAGE_DIR);
             try {
                 $upload = $image->upload($_FILES["image"], uniqid($req->name), 400);
@@ -144,7 +144,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
 
         if (!$user->save()) {
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
-        } else {
+        } else if ($user->id == session()->user->id) {
             //RESET SESSION
             session()->set("user", [
                 "id" => (int)$user->id,
@@ -153,39 +153,38 @@ class User extends \Source\Core\Controller implements ResourceInterface
                 "image" => $user->image,
                 "maturity" => time()+CONF_SESSION_LIFE_TIME
             ]);
-
-            //RESET USER PERMISSIONS
-            $userPermissions = (new UserPermission())->find("user = :u",
-                ["u" => $user->id])->fetch(true);
-            if ($userPermissions) {
-                foreach ($userPermissions as $up) {
-                    $up->destroy();
-                }
-            }
-
-            //CREATE ADDITIONAL ACCESSES
-            if ($authorized) {
-                foreach ($authorized as $a) {
-                    $userPermission = new UserPermission();
-                    $userPermission->user = (int)$user->id;
-                    $userPermission->permission = (int)$a;
-                    $userPermission->status = true;
-                    $userPermission->save();
-                }
-            }
-
-            //CREATE ADDITIONAL RESTRICTIONS
-            if ($unauthorized) {
-                foreach ($unauthorized as $u) {
-                    $userPermission = new UserPermission();
-                    $userPermission->user = (int)$user->id;
-                    $userPermission->permission = (int)$u;
-                    $userPermission->save();
-                }
-            }
-
-            redirect("admin/user");
         }
+        //RESET USER PERMISSIONS
+        $userPermissions = (new UserPermission())->find("user = :u",
+            ["u" => $user->id])->fetch(true);
+        if ($userPermissions) {
+            foreach ($userPermissions as $up) {
+                $up->destroy();
+            }
+        }
+
+        //CREATE ADDITIONAL ACCESSES
+        if ($authorized) {
+            foreach ($authorized as $a) {
+                $userPermission = new UserPermission();
+                $userPermission->user = (int)$user->id;
+                $userPermission->permission = (int)$a;
+                $userPermission->status = true;
+                $userPermission->save();
+            }
+        }
+
+        //CREATE ADDITIONAL RESTRICTIONS
+        if ($unauthorized) {
+            foreach ($unauthorized as $u) {
+                $userPermission = new UserPermission();
+                $userPermission->user = (int)$user->id;
+                $userPermission->permission = (int)$u;
+                $userPermission->save();
+            }
+        }
+
+        redirect("admin/user");
     }
 
     #[NoReturn] public function destroy(Request $req): void

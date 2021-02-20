@@ -379,11 +379,14 @@ function dispatch(Router $router): void
             return !is_null($r);
         }));
         pdo()->exec("DELETE FROM `permissions` WHERE `id` NOT IN ({$routes})");
+        pdo()->exec("TRUNCATE TABLE `role_permissions`");
+        foreach ((new Permission())->find()->fetch(true) as $permission) {
+            $rolePermission = new \Source\Models\Authorization\RolePermission();
+            $rolePermission->role = (int)$rootRole;
+            $rolePermission->permission = (int)$permission->id;
+            $rolePermission->save();
+        }
 
-        $root = implode(", ", array_filter($root, function ($r) {
-            return !is_null($r);
-        }));
-        pdo()->exec("DELETE FROM `permissions` WHERE `role` = {$rootRole} AND `id` NOT IN ({$root})");
     }
     $router->dispatch();
 }
