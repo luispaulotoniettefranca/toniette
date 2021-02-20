@@ -361,31 +361,26 @@ function dispatch(Router $router): void
                 $permission->handler = $value["handler"];
                 $permission->action = $value["action"];
                 $permission->save();
-                $routes[] = $permission->id;
+                $permissions[] = $permission->id;
 
                 //UPDATE ROOT PERMISSIONS
                 $rootRole = (new \Source\Models\Authorization\Role())->find("name = :r", [
                     "r" => "root"
                 ])->fetch()->id;
-                $rootPermission = new \Source\Models\Authorization\RolePermission();
+                $rootPermission = (new \Source\Models\Authorization\RolePermission())->find(
+                    "role = :r AND permission = :p", ["r" => $rootRole, "p" => $permission->id]
+                )->fetch() ?? (new \Source\Models\Authorization\RolePermission());
                 $rootPermission->role = $rootRole;
                 $rootPermission->permission = $permission->id;
                 $rootPermission->save();
-                $root[] = $rootPermission->id;
             }
         }
-
-        $routes = implode(", ", array_filter($routes, function ($r) {
-            return !is_null($r);
+        // CLEAN OLD REGISTERS
+        $permissions = implode(", ", array_filter($permissions, function ($p) {
+            return !is_null($p);
         }));
-        pdo()->exec("DELETE FROM `permissions` WHERE `id` NOT IN ({$routes})");
-        pdo()->exec("TRUNCATE TABLE `role_permissions`");
-        foreach ((new Permission())->find()->fetch(true) as $permission) {
-            $rolePermission = new \Source\Models\Authorization\RolePermission();
-            $rolePermission->role = (int)$rootRole;
-            $rolePermission->permission = (int)$permission->id;
-            $rolePermission->save();
-        }
+        pdo()->exec("DELETE FROM `role_permissions` WHERE `role` = {$rootRole} AND permission NOT IN ({$permissions})");
+        pdo()->exec("DELETE FROM `permissions` WHERE `id` NOT IN ({$permissions})");
 
     }
     $router->dispatch();
