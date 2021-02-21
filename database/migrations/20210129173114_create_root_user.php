@@ -21,8 +21,8 @@ final class CreateRootUser extends AbstractMigration
         $table = $this->table('users');
         $table->insert([
             "name" => "root",
-            "email" => "root@toniette.framework",
-            "password" => "$2y$10\$NObq/wBlMYVk1g/d6x5WeuXfttF0RbqfFLNtvAZpOy706rSYvz4Pm",
+            "email" => "root@foo.bar",
+            "password" => passwd_hash("root"),
             "role" => 1
         ]);
         $table->saveData();

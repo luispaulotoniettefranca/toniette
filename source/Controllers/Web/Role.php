@@ -34,6 +34,10 @@ class Role extends \Source\Core\Controller implements ResourceInterface
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
+        if (!$role) {
+            logger()->error("ROLE NOT FOUND", ["\$_SERVER" => $_SERVER, "Request" => $req]);
+            redirect("error/404/" . urlencode("Role not found"));
+        }
         $rolePermissions = (new RolePermission())->find("role = :r",
             ["r" => $role->id], "permission")->fetch(true);
         $permissions = [];
@@ -67,9 +71,19 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role = new \Source\Models\Authorization\Role();
         $role->name = $req->name;
         if (!$perm) {
-            redirect("error/400/" . urlencode("Permissions fields are required"));
+            logger()->error("ATTEMPT TO STORE ROLE WITHOUT PERMISSIONS", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => "Permissions field is required"
+            ]);
+            redirect("error/400/" . urlencode("Permissions field is required"));
         }
         if (!$role->save()) {
+            logger()->error("ERROR SAVING ROLE", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $role->fail()
+            ]);
             redirect("error/400/" . urlencode($role->fail()->getMessage()));
         } else {
             foreach ($perm as $p) {
@@ -79,6 +93,11 @@ class Role extends \Source\Core\Controller implements ResourceInterface
                 $rolePermission->save();
             }
         }
+        logger()->debug("NEW ROLE STORED", [
+            "USER" => (array)session()->user,
+            "REQUEST" => $req(),
+            "ROLE" => (array)$role->data(),
+        ]);
         redirect("admin/role");
     }
 
@@ -89,6 +108,10 @@ class Role extends \Source\Core\Controller implements ResourceInterface
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
+        if (!$role) {
+            logger()->error("ROLE NOT FOUND FOR EDITING", []);
+            redirect("error/404/" . urlencode("Role not found"));
+        }
         $rolePermissions = (new RolePermission())->find("role = :r",
             ["r" => (int)$role->id], "permission")->fetch(true);
         $permissions = (new Permission())->find()->fetch(true);
@@ -113,6 +136,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         ]);
 
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
+
         $role->name = $req->name;
         $role->save();
 

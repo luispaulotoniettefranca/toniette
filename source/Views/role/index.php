@@ -32,6 +32,7 @@
                     <td><?= $role->name ?></td>
                     <td>
                         <div class="row">
+                            <? if ($role->id != session()->user->role || session()->user->role == 1): ?>
                             <div class="col-6 border-right">
                                 <a href="<?= url("admin/role/{$role->id}/edit") ?>">
                                     <?= icon("pencil") ?>
@@ -42,6 +43,11 @@
                                     <?= icon("x-circle") ?>
                                 </a>
                             </div>
+                            <? else: ?>
+                                <div class="col-12">
+                                    <small><b>You can't manipulate your own role</b></small>
+                                </div>
+                            <? endif; ?>
                         </div>
                     </td>
                 </tr>
