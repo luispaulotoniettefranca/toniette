@@ -31,7 +31,11 @@ class User extends \Source\Core\Controller implements ResourceInterface
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $user = (new \Source\Models\User())->findById($req->key);
         if(!$user) {
-            redirect("error/404/" . urlencode("Sorry, this user isn't found"));
+            logger()->error("USER NOT FOUND", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't show user details. User not found"));
         }
         response()->view("user/show", ["user" => $user],
             seo("User Details", "User details page", ["user", "details"]));
@@ -70,6 +74,11 @@ class User extends \Source\Core\Controller implements ResourceInterface
         $user->role = $req->role;
 
         if (!$user->save()) {
+            logger()->error("USER NOT FOUND", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $user->fail()
+            ]);
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
         } else if ($user->id == session()->user->id) {
             session()->set("user", [
@@ -87,7 +96,13 @@ class User extends \Source\Core\Controller implements ResourceInterface
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $user = (new \Source\Models\User())->findById($req->key);
-
+        if ($user) {
+            logger()->error("USER NOT FOUND", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/400/" . urlencode("Sorry, this user isn't found"));
+        }
         $permissions = (new Permission())->find()->fetch(true);
 
         $authorized = array_map(function ($p) {

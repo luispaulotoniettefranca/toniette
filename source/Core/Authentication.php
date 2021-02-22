@@ -15,26 +15,27 @@ class Authentication extends Controller
 {
 
     /**
-     * @param Request $request
+     * @param Request $req
      * @return bool
      */
-    public static function login(Request $request): bool
+    public static function login(Request $req): bool
     {
-        $request->validate([
+        $req->validate([
             "email" => FILTER_SANITIZE_EMAIL,
             "password" => FILTER_DEFAULT
         ]);
         $user = (new User())->find("email = :email", [
-            "email" => $request->email
+            "email" => $req->email
         ])->fetch();
-        if (password_verify($request->password, $user->password)) {
+        if (password_verify($req->password, $user->password)) {
             if (passwd_needs_rehash($user->password)) {
                 $newUser = (new User())->findById($user->id);
-                $newUser->password = passwd_hash($request->password);
+                $newUser->password = passwd_hash($req->password);
                 $newUser->save();
             }
             if (session()->has("attempts")) {
                 session()->unset("attempts");
+                session()->unset("invalid_credentials");
             }
             session()->set("user", [
                 "id" => (int)$user->id,
@@ -45,8 +46,17 @@ class Authentication extends Controller
             ]);
             return true;
         } else {
+            if (!session()->has("invalid_credentials")) {
+                session()->set("invalid_credentials", []);
+            }
+            session()->invalid_credentials[] = ["email" => $req->email, "password" => $req->password];
             session()->set("attempts", (session()->has("attempts") ? session()->attempts + 1 : 1));
             if (session()->attempts >= CONF_ATTEMPT_LIMIT) {
+                logger()->emergency("SUSPICIOUS LOGIN ATTEMPT BEHAVIOR", [
+                    "REQUEST" => $req(),
+                    "ATTEMPTS NUMBER" => session()->attempts,
+                    "CREDENTIALS" => session()->invalid_credentials
+                ]);
                 session()->set("block", time() + CONF_SESSION_BLOCK_TIME);
             }
         }

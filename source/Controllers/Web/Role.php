@@ -35,8 +35,11 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
-            logger()->error("ROLE NOT FOUND", ["\$_SERVER" => $_SERVER, "Request" => $req]);
-            redirect("error/404/" . urlencode("Role not found"));
+            logger()->error("ROLE NOT FOUND", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't show role details. Role not found"));
         }
         $rolePermissions = (new RolePermission())->find("role = :r",
             ["r" => $role->id], "permission")->fetch(true);
@@ -74,12 +77,11 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             logger()->error("ATTEMPT TO STORE ROLE WITHOUT PERMISSIONS", [
                 "USER" => (array)session()->user,
                 "REQUEST" => $req(),
-                "ERROR" => "Permissions field is required"
             ]);
-            redirect("error/400/" . urlencode("Permissions field is required"));
+            redirect("error/400/" . urlencode("Can't store. Permissions field is required"));
         }
         if (!$role->save()) {
-            logger()->error("ERROR SAVING ROLE", [
+            logger()->error("ERROR STORING ROLE", [
                 "USER" => (array)session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $role->fail()
@@ -109,8 +111,12 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
-            logger()->error("ROLE NOT FOUND FOR EDITING", []);
-            redirect("error/404/" . urlencode("Role not found"));
+            logger()->error("ROLE NOT FOUND FOR EDITING", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => "Role not found"
+            ]);
+            redirect("error/404/" . urlencode("Can't edit. Role not found"));
         }
         $rolePermissions = (new RolePermission())->find("role = :r",
             ["r" => (int)$role->id], "permission")->fetch(true);
@@ -136,7 +142,14 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         ]);
 
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
-
+        if (!$role) {
+            logger()->error("ROLE NOT FOUND FOR UPDATE", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => "Role not found"
+            ]);
+            redirect("error/404/" . urlencode("Can't update. Role not found"));
+        }
         $role->name = $req->name;
         $role->save();
 
@@ -183,6 +196,14 @@ class Role extends \Source\Core\Controller implements ResourceInterface
 
         // DESTROY role
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
+        if (!$role) {
+            logger()->error("ROLE NOT FOUND FOR DELETE", [
+                "USER" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => "Role not found"
+            ]);
+            redirect("error/404/" . urlencode("Can't Delete. Role not found"));
+        }
         $role->destroy();
 
         redirect("admin/role");
