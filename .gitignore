@@ -118,4 +118,9 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/composer,phpstorm
 
-storage
+storage/
+storage/images/
+storage/files/
+storage/medias/
+storage/logs/
+storage/logs/log.txt
