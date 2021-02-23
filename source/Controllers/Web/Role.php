@@ -23,7 +23,9 @@ class Role extends \Source\Core\Controller implements ResourceInterface
      */
     public function index(Request $req): void
     {
-        $roles = (new \Source\Models\Authorization\Role())->find("name != root")->fetch(true);
+        $roles = (new \Source\Models\Authorization\Role())->find("name != :r", [
+            "r" => "root"
+        ])->fetch(true);
         response()->view("role/index", ["roles" => $roles],
             seo("Roles List", "Roles list page", ["roles", "list", "index"]));
     }
@@ -37,7 +39,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
             logger()->error("ROLE NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't show role details. Role not found"));
@@ -49,7 +51,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             $permission = (new Permission())->findById($rp->permission);
             if (!$permissions) {
                 logger()->error("ROLE PERMISSION(S) NOT FOUND", [
-                    "AGENT" => (array)session()->user,
+                    "AGENT" => session()->user,
                     "REQUEST" => $req(),
                 ]);
                 redirect("error/404/" . urlencode("Can't show role details. Role permission(s) not found"));
@@ -69,7 +71,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $permissions = (new Permission())->find()->fetch(true);
         if (!$permissions) {
             logger()->error("PERMISSIONS NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't create role. Permissions not found"));
@@ -91,14 +93,14 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role->name = $req->name;
         if (!$perm) {
             logger()->error("ATTEMPT TO STORE ROLE WITHOUT PERMISSIONS", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/400/" . urlencode("Can't store. Permissions field is required"));
         }
         if (!$role->save()) {
             logger()->error("CAN'T STORE ROLE", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $role->fail()
             ]);
@@ -110,19 +112,18 @@ class Role extends \Source\Core\Controller implements ResourceInterface
                 $rolePermission->permission = (int)$p;
                 if (!$rolePermission->save()) {
                     logger()->error("CAN'T STORE ROLE PERMISSION(S)", [
-                        "AGENT" => (array)session()->user,
+                        "AGENT" => session()->user,
                         "REQUEST" => $req(),
                         "ERROR" => $rolePermission->fail()
                     ]);
                     redirect("error/404/" . urlencode($rolePermission->fail()->getMessage()));
                 }
-
             }
         }
         logger()->info("AN NEW ROLE HAS BEEN STORED", [
-            "AGENT" => (array)session()->user,
+            "AGENT" => session()->user,
             "REQUEST" => $req(),
-            "ROLE" => (array)$role->data(),
+            "ROLE" => $role->data(),
         ]);
         redirect("admin/role");
     }
@@ -136,7 +137,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
             logger()->error("ROLE NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't edit. Role not found"));
@@ -145,7 +146,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             ["r" => (int)$role->id], "permission")->fetch(true);
         if (!$rolePermissions) {
             logger()->error("ROLE PERMISSIONS NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't edit role. Role permissions not found"));
@@ -153,7 +154,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $permissions = (new Permission())->find()->fetch(true);
         if(!$permissions) {
             logger()->error("PERMISSIONS NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't edit role. Permissions not found"));
@@ -163,13 +164,12 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             $auth = (new Permission())->findById($rp->permission);
             if (!$auth) {
                 logger()->error("ROLE PERMISSION(S) NOT FOUND", [
-                    "AGENT" => (array)session()->user,
+                    "AGENT" => session()->user,
                     "REQUEST" => $req(),
                 ]);
                 redirect("error/404/" . urlencode("Can't edit role. Permission(s) not found"));
             }
             $authorized[] = $auth;
-
         }
         response()->view("role/edit",
             ["role" => $role, "authorized" => $authorized, "permissions" => $permissions],
@@ -190,7 +190,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
             logger()->error("ROLE NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't update. Role not found"));
@@ -199,29 +199,28 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $role->name = $req->name;
         if (!$role->save()) {
             logger()->error("ROLE NOT FOUND", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/404/" . urlencode("Can't update. Role not found"));
         } else {
             logger()->info("AN ROLE HAS BEEN UPDATED", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
-                "OLD_ROLE" => (array)$oldRole->data(),
-                "NEW_ROLE" => (array)$role->data(),
+                "OLD_ROLE" => $oldRole->data(),
+                "NEW_ROLE" => $role->data(),
             ]);
         }
         try {
             pdo()->exec("DELETE FROM `role_permissions` WHERE `role` = {$req->key}");
         } catch (Exception $exception) {
             logger()->error("CAN'T STORE ROLE PERMISSION ON UPDATE", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $exception
             ]);
             redirect("error/400/" . urlencode($exception->getMessage()));
         }
-
 
         if ($perm) {
             foreach ($perm as $p) {
@@ -230,21 +229,21 @@ class Role extends \Source\Core\Controller implements ResourceInterface
                 $rolePermission->permission = (int)$p;
                 if(!$rolePermission->save()) {
                     logger()->error("CAN'T STORE ROLE PERMISSION ON UPDATE", [
-                        "AGENT" => (array)session()->user,
+                        "AGENT" => session()->user,
                         "REQUEST" => $req(),
                         "ERROR" => $rolePermission->fail()
                     ]);
                     redirect("error/400/" . urlencode($rolePermission->fail()->getMessage()));
                 }
                 logger()->info("AN ROLE PERMISSION HAS BEEN UPDATED", [
-                    "AGENT" => (array)session()->user,
+                    "AGENT" => session()->user,
                     "REQUEST" => $req(),
                     "PERMISSION" => $rolePermission->data()
                 ]);
             }
         } else {
             logger()->error("ATTEMPT TO UPDATE ROLE WITHOUT PERMISSIONS", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
             ]);
             redirect("error/400/" . urlencode("Can't store. Permissions field is required"));
@@ -264,7 +263,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             pdo()->exec("DELETE FROM `role_permissions` WHERE `role` = {$req->key}");
         } catch (\Exception $exception) {
             logger()->error("CAN'T DELETE ROLE PERMISSIONS", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $exception
             ]);
@@ -277,7 +276,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             pdo()->exec("DELETE FROM `users` WHERE `role` = {$req->key}");
         } catch (\Exception $exception) {
             logger()->error("CAN'T DELETE USERS BY ROLE", [
-                "AGENT" => (array)session()->user,
+                "AGENT" => session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $exception
             ]);
@@ -309,6 +308,5 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             "USER" => $oldRole->data()
         ]);
         redirect("admin/role");
-
     }
 }
