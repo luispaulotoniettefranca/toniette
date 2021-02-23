@@ -26,6 +26,7 @@
                 <th>Actions</th>
             </thead>
             <tbody>
+            <? if ($roles): ?>
             <? foreach ($roles as $role): ?>
                 <tr>
                     <td><?= $role->id ?></td>
@@ -52,6 +53,9 @@
                     </td>
                 </tr>
             <? endforeach; ?>
+            <? else: ?>
+                <tr><td colspan="3"><h4>EDITABLE ROLES NOT FOUND!</h4></td></tr>
+            <? endif; ?>
             </tbody>
         </table>
     </div>

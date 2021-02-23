@@ -263,6 +263,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
             ]);
             redirect("error/404/" . urlencode("Can't delete, user not found"));
         }
+        $oldUser = $user;
         if (!$user->destroy()) {
             logger()->error("CAN'T DELETE USER", [
                 "AGENT" => (array)session()->user,
@@ -274,7 +275,7 @@ class User extends \Source\Core\Controller implements ResourceInterface
         logger()->info("AN USER HAS BEEN DELETED", [
             "AGENT" => (array)session()->user,
             "REQUEST" => $req(),
-            "USER" => $user->data()
+            "USER" => $oldUser->data()
         ]);
         redirect("admin/user");
     }

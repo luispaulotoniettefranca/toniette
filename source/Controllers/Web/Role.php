@@ -3,6 +3,7 @@
 namespace Source\Controllers\Web;
 
 
+use mysql_xdevapi\Exception;
 use Source\Core\ResourceInterface;
 use Toniette\Router\Router;
 use JetBrains\PhpStorm\NoReturn;
@@ -22,7 +23,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
      */
     public function index(Request $req): void
     {
-        $roles = (new \Source\Models\Authorization\Role())->find()->fetch(true);
+        $roles = (new \Source\Models\Authorization\Role())->find("name != root")->fetch(true);
         response()->view("role/index", ["roles" => $roles],
             seo("Roles List", "Roles list page", ["roles", "list", "index"]));
     }
@@ -96,7 +97,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             redirect("error/400/" . urlencode("Can't store. Permissions field is required"));
         }
         if (!$role->save()) {
-            logger()->error("ERROR STORING ROLE", [
+            logger()->error("CAN'T STORE ROLE", [
                 "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $role->fail()
@@ -137,7 +138,6 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             logger()->error("ROLE NOT FOUND", [
                 "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
-                "ERROR" => "Role not found"
             ]);
             redirect("error/404/" . urlencode("Can't edit. Role not found"));
         }
@@ -160,7 +160,16 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         }
         $authorized = [];
         foreach ($rolePermissions as $rp) {
-            $authorized[] = (new Permission())->findById($rp->permission);
+            $auth = (new Permission())->findById($rp->permission);
+            if (!$auth) {
+                logger()->error("ROLE PERMISSION(S) NOT FOUND", [
+                    "AGENT" => (array)session()->user,
+                    "REQUEST" => $req(),
+                ]);
+                redirect("error/404/" . urlencode("Can't edit role. Permission(s) not found"));
+            }
+            $authorized[] = $auth;
+
         }
         response()->view("role/edit",
             ["role" => $role, "authorized" => $authorized, "permissions" => $permissions],
@@ -180,7 +189,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
 
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
         if (!$role) {
-            logger()->error("ROLE NOT FOUND FOR UPDATE", [
+            logger()->error("ROLE NOT FOUND", [
                 "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
             ]);
@@ -189,7 +198,7 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $oldRole = $role;
         $role->name = $req->name;
         if (!$role->save()) {
-            logger()->error("ROLE NOT FOUND FOR UPDATE", [
+            logger()->error("ROLE NOT FOUND", [
                 "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
             ]);
@@ -202,22 +211,45 @@ class Role extends \Source\Core\Controller implements ResourceInterface
                 "NEW_ROLE" => (array)$role->data(),
             ]);
         }
-        $oldPerm = (new RolePermission())->find("role = :r", ["r" => $req->key])->fetch(true);
-        if ($oldPerm) {
-            foreach ($oldPerm as $old) {
-                $old->destroy();
+        try {
+            pdo()->exec("DELETE FROM `role_permissions` WHERE `role` = {$req->key}");
+        } catch (Exception $exception) {
+            logger()->error("CAN'T STORE ROLE PERMISSION ON UPDATE", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $exception
+            ]);
+            redirect("error/400/" . urlencode($exception->getMessage()));
+        }
+
+
+        if ($perm) {
+            foreach ($perm as $p) {
+                $rolePermission = new RolePermission();
+                $rolePermission->role = $role->id;
+                $rolePermission->permission = (int)$p;
+                if(!$rolePermission->save()) {
+                    logger()->error("CAN'T STORE ROLE PERMISSION ON UPDATE", [
+                        "AGENT" => (array)session()->user,
+                        "REQUEST" => $req(),
+                        "ERROR" => $rolePermission->fail()
+                    ]);
+                    redirect("error/400/" . urlencode($rolePermission->fail()->getMessage()));
+                }
+                logger()->info("AN ROLE PERMISSION HAS BEEN UPDATED", [
+                    "AGENT" => (array)session()->user,
+                    "REQUEST" => $req(),
+                    "PERMISSION" => $rolePermission->data()
+                ]);
             }
+        } else {
+            logger()->error("ATTEMPT TO UPDATE ROLE WITHOUT PERMISSIONS", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/400/" . urlencode("Can't store. Permissions field is required"));
         }
-
-        foreach ($perm as $p) {
-            $rolePermission = new RolePermission();
-            $rolePermission->role = $role->id;
-            $rolePermission->permission = (int)$p;
-            $rolePermission->save();
-        }
-
         redirect("admin/role");
-
     }
 
     /**
@@ -228,22 +260,30 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
 
         // DESTROY role/permissions relation
-        $rp = new RolePermission();
-        $rolePermissions = $rp->find("role = :r", ["r" => $req->key])->fetch(true);
-        if ($rolePermissions) {
-            foreach ($rolePermissions as $rope) {
-                $rope->destroy();
-            }
+        try {
+            pdo()->exec("DELETE FROM `role_permissions` WHERE `role` = {$req->key}");
+        } catch (\Exception $exception) {
+            logger()->error("CAN'T DELETE ROLE PERMISSIONS", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $exception
+            ]);
+            redirect("error/400/" . urlencode($exception->getMessage()));
         }
 
+
         // DESTROY users
-        $user = new \Source\Models\User();
-        $users = $user->find("role = :r", ["r" => $req->key])->fetch(true);
-        if ($users) {
-            foreach ($users as $u) {
-                $u->destroy();
-            }
+        try {
+            pdo()->exec("DELETE FROM `users` WHERE `role` = {$req->key}");
+        } catch (\Exception $exception) {
+            logger()->error("CAN'T DELETE USERS BY ROLE", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $exception
+            ]);
+            redirect("error/400/" . urlencode($exception->getMessage()));
         }
+
 
         // DESTROY role
         $role = (new \Source\Models\Authorization\Role())->findById($req->key);
@@ -254,8 +294,20 @@ class Role extends \Source\Core\Controller implements ResourceInterface
             ]);
             redirect("error/404/" . urlencode("Can't Delete. Role not found"));
         }
-        $role->destroy();
-
+        $oldRole = $role;
+        if (!$role->destroy()) {
+            logger()->error("CAN'T UPDATE USER", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $role->fail()
+            ]);
+            redirect("error/400/" . urlencode($role->fail()->getMessage()));
+        }
+        logger()->info("AN ROLE HAS BEEN DELETED", [
+            "AGENT" => (array)session()->user,
+            "REQUEST" => $req(),
+            "USER" => $oldRole->data()
+        ]);
         redirect("admin/role");
 
     }
