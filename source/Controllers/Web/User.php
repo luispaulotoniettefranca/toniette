@@ -32,10 +32,10 @@ class User extends \Source\Core\Controller implements ResourceInterface
         $user = (new \Source\Models\User())->findById($req->key);
         if(!$user) {
             logger()->error("USER NOT FOUND", [
-                "USER" => (array)session()->user,
+                "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
             ]);
-            redirect("error/404/" . urlencode("Can't show user details. User not found"));
+            redirect("error/404/" . urlencode("Can't show details. User not found"));
         }
         response()->view("user/show", ["user" => $user],
             seo("User Details", "User details page", ["user", "details"]));
@@ -74,34 +74,31 @@ class User extends \Source\Core\Controller implements ResourceInterface
         $user->role = $req->role;
 
         if (!$user->save()) {
-            logger()->error("USER NOT FOUND", [
-                "USER" => (array)session()->user,
+            logger()->error("CAN'T STORE USER", [
+                "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
                 "ERROR" => $user->fail()
             ]);
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
-        } else if ($user->id == session()->user->id) {
-            session()->set("user", [
-                "id" => (int)$user->id,
-                "name" => $user->name,
-                "role" => (int)$user->role,
-                "image" => $user->image,
-                "maturity" => time()+CONF_SESSION_LIFE_TIME
-            ]);
-            redirect("admin/user");
         }
+        logger()->info("AN NEW USER HAS BEEN STORED", [
+            "AGENT" => (array)session()->user,
+            "REQUEST" => $req(),
+            "USER" => (array)$user->data(),
+        ]);
+        redirect("admin/user");
     }
 
     public function edit(Request $req): void
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $user = (new \Source\Models\User())->findById($req->key);
-        if ($user) {
+        if (!$user) {
             logger()->error("USER NOT FOUND", [
-                "USER" => (array)session()->user,
+                "AGENT" => (array)session()->user,
                 "REQUEST" => $req(),
             ]);
-            redirect("error/400/" . urlencode("Sorry, this user isn't found"));
+            redirect("error/404/" . urlencode("Can't edit. User not found"));
         }
         $permissions = (new Permission())->find()->fetch(true);
 
@@ -138,7 +135,14 @@ class User extends \Source\Core\Controller implements ResourceInterface
         ]);
 
         $user = (new \Source\Models\User())->findById($req->key);
-
+        if (!$user) {
+            logger()->error("USER NOT FOUND", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't update, user not found"));
+        }
+        $oldUser = $user;
         if($_FILES["image"]["name"]) {
             $image = new Image(CONF_STORAGE_DIR, CONF_STORAGE_IMAGE_DIR);
             try {
@@ -158,6 +162,11 @@ class User extends \Source\Core\Controller implements ResourceInterface
         $user->role = $req->role;
 
         if (!$user->save()) {
+            logger()->error("CAN'T UPDATE USER", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $user->fail()
+            ]);
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
         } else if ($user->id == session()->user->id) {
             //RESET SESSION
@@ -169,13 +178,22 @@ class User extends \Source\Core\Controller implements ResourceInterface
                 "maturity" => time()+CONF_SESSION_LIFE_TIME
             ]);
         }
+        logger()->info("AN USER HAS BEEN UPDATED", [
+            "AGENT" => (array)session()->user,
+            "REQUEST" => $req(),
+            "OLD_USER" => (array)$oldUser->data(),
+            "NEW_USER" => (array)$user->data(),
+        ]);
+
         //RESET USER PERMISSIONS
-        $userPermissions = (new UserPermission())->find("user = :u",
-            ["u" => $user->id])->fetch(true);
-        if ($userPermissions) {
-            foreach ($userPermissions as $up) {
-                $up->destroy();
-            }
+        try {
+            pdo()->exec("DELETE FROM `user_permissions` WHERE `user` = {$user->id}");
+        } catch (\Exception $exception) {
+            logger()->error("CAN'T STORE USER PERMISSION ON UPDATE", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $exception
+            ]);
         }
 
         //CREATE ADDITIONAL ACCESSES
@@ -185,7 +203,19 @@ class User extends \Source\Core\Controller implements ResourceInterface
                 $userPermission->user = (int)$user->id;
                 $userPermission->permission = (int)$a;
                 $userPermission->status = true;
-                $userPermission->save();
+                if (!$userPermission->save()) {
+                    logger()->error("CAN'T STORE USER PERMISSION ON UPDATE", [
+                        "AGENT" => (array)session()->user,
+                        "REQUEST" => $req(),
+                        "ERROR" => $userPermission->fail()
+                    ]);
+                    redirect("error/400/" . urlencode($userPermission->fail()->getMessage()));
+                }
+                logger()->info("AN USER PERMISSION BEEN UPDATED", [
+                    "AGENT" => (array)session()->user,
+                    "REQUEST" => $req(),
+                    "PERMISSION" => (array)$userPermission->data(),
+                ]);
             }
         }
 
@@ -195,7 +225,19 @@ class User extends \Source\Core\Controller implements ResourceInterface
                 $userPermission = new UserPermission();
                 $userPermission->user = (int)$user->id;
                 $userPermission->permission = (int)$u;
-                $userPermission->save();
+                if (!$userPermission->save()) {
+                    logger()->error("CAN'T STORE USER PERMISSION ON UPDATE", [
+                        "AGENT" => (array)session()->user,
+                        "REQUEST" => $req(),
+                        "ERROR" => $userPermission->fail()
+                    ]);
+                    redirect("error/400/" . urlencode($userPermission->fail()->getMessage()));
+                }
+                logger()->info("AN USER PERMISSION BEEN UPDATED", [
+                    "AGENT" => (array)session()->user,
+                    "REQUEST" => $req(),
+                    "PERMISSION" => (array)$userPermission->data(),
+                ]);
             }
         }
 
@@ -209,16 +251,31 @@ class User extends \Source\Core\Controller implements ResourceInterface
         ]);
         $user = (new \Source\Models\User())->findById($req->key);
         if ($user) {
+            $oldUser = $user;
             if (is_file(CONF_BASE_DIR . $user->image)) {
                 unlink(CONF_BASE_DIR . $user->image);
             }
-            $userPermissions = (new UserPermission())->find("user = :u",
-                ["u" => $user->id])->fetch(true);
-            foreach ($userPermissions as $userPermission) {
-                $userPermission->destroy();
-            }
+            pdo()->exec("DELETE FROM `user_permissions` WHERE `user` = {$user->id}");
+        } else {
+            logger()->error("USER NOT FOUND", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't delete, user not found"));
         }
-        $user->destroy();
+        if (!$user->destroy()) {
+            logger()->error("CAN'T DELETE USER", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $user->fail()
+            ]);
+            redirect("error/400/" . urlencode($user->fail()->getMessage()));
+        }
+        logger()->info("AN USER HAS BEEN DELETED", [
+            "AGENT" => (array)session()->user,
+            "REQUEST" => $req(),
+            "USER" => $user->data()
+        ]);
         redirect("admin/user");
     }
 
@@ -226,6 +283,13 @@ class User extends \Source\Core\Controller implements ResourceInterface
     {
         $req->validate(["key" => FILTER_SANITIZE_NUMBER_INT]);
         $user = (new \Source\Models\User())->findById($req->key);
+        if (!$user) {
+            logger()->error("USER NOT FOUND", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't edit password, user not found"));
+        }
         response()->view("user/password_edit", ["user" => $user], seo("Password Edit",
             "Edit User Password", ["new", "password"]));
     }
@@ -236,12 +300,31 @@ class User extends \Source\Core\Controller implements ResourceInterface
             "key" => FILTER_SANITIZE_NUMBER_INT,
             "password" => FILTER_DEFAULT
         ]);
+
         $user = (new \Source\Models\User())->findById($req->key);
+        if (!$user) {
+            logger()->error("USER NOT FOUND", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't update, user not found"));
+        }
+        $oldUser = $user;
         $user->password = $req->password;
         if (!$user->save()) {
+            logger()->error("CAN'T UPDATE USER", [
+                "AGENT" => (array)session()->user,
+                "REQUEST" => $req(),
+                "ERROR" => $user->fail()
+            ]);
             redirect("error/400/" . urlencode($user->fail()->getMessage()));
-        } else {
-            redirect("admin/user");
         }
+        logger()->info("AN USER HAS BEEN UPDATED", [
+            "AGENT" => (array)session()->user,
+            "REQUEST" => $req(),
+            "OLD_USER" => (array)$oldUser->data(),
+            "NEW_USER" => (array)$user->data(),
+        ]);
+        redirect("admin/user");
     }
 }
