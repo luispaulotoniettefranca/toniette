@@ -6,15 +6,15 @@
     <div class="row text-center">
         <h1 class="col-12"><?= $this->escape($errcode) ?></h1>
         <p class="col-12">
-        <? if($message): ?>
+        <?php if($message): ?>
             <?= $message ?>
-        <? else: ?>
+        <?php else: ?>
             This page don't exist, or we are having problems in our server,
             or you don't have permission to access this page.
-        <? endif; ?>
+        <?php endif; ?>
         </p>
         <p class="col-12"><b>Contact the webmaster: <?= CONF_WEBMASTER_CONTACT ?></b></p>
-        <button class="btn btn-primary" onclick="javascript: history.back();"><?= icon("arrow-left-square-fill") ?> GO BACK!</button>
+        <button class="btn btn-primary" onclick="history.back();"><?= icon("arrow-left-square-fill") ?> GO BACK!</button>
     </div>
 </div>
 

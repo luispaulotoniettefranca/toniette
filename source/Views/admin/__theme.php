@@ -5,7 +5,9 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <?php if ($seo): echo $seo; endif; ?>
+    <?php if ($seo): ?>
+        <?= $seo; ?>
+    <?php endif; ?>
     <title>Toniette</title>
     <link rel="icon" type="image/png" href="<?= CONF_SEO_IMAGE ?>"/>
     <link rel="stylesheet" href="<?= asset("style.min.css") ?>">
@@ -31,13 +33,13 @@
             <div class="navbar-nav ml-auto mr-5">
                 <a class="nav-item nav-link" href="<?= url("/admin/user/" . session()->user->id) ?>">
                     <?= session()->user->name ?>
-                    <? if (session()->user->image && file_exists(CONF_BASE_DIR .
+                    <?php if (session()->user->image && file_exists(CONF_BASE_DIR .
                             DIRECTORY_SEPARATOR . session()->user->image)): ?>
                         <img width="30" height="30" class="ml-1 rounded-circle"
                              src="<?= url(session()->user->image) ?>" alt="UserProfileImage">
-                    <? else: ?>
+                    <?php else: ?>
                         <?= icon("person-fill") ?>
-                    <? endif; ?>
+                    <?php endif; ?>
                 </a>
                 <a class="nav-item nav-link" href="<?= url("logout") ?>">Logout
                     <?= icon("backspace-reverse-fill") ?></a>

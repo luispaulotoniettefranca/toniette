@@ -26,9 +26,9 @@
             <div class="form-group">
                 <label for="role">Role</label>
                 <select class="form-control" name="role" id="role">
-                    <? foreach ($roles as $role): ?>
+                    <?php foreach ($roles as $role): ?>
                     <option value="<?= $role->id ?>"><?= $role->name ?></option>
-                    <? endforeach; ?>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group text-center">

@@ -14,11 +14,11 @@
             <hr>
             <label for="permissions">Role permissions</label>
             <select name="permissions[]" id="permissions" multiple>
-                <? foreach ($permissions as $p): ?>
+                <?php foreach ($permissions as $p): ?>
                     <option value="<?= $p->id ?>">
                         <?= $p->route ?>
                     </option>
-                <? endforeach; ?>
+                <?php endforeach; ?>
             </select>
             <hr>
             <div class="mt-4 form-group text-center">

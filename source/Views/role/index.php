@@ -26,14 +26,14 @@
                 <th>Actions</th>
             </thead>
             <tbody>
-            <? if ($roles): ?>
-            <? foreach ($roles as $role): ?>
+            <?php if ($roles): ?>
+            <?php foreach ($roles as $role): ?>
                 <tr>
                     <td><?= $role->id ?></td>
                     <td><?= $role->name ?></td>
                     <td>
                         <div class="row">
-                            <? if ($role->id != session()->user->role || session()->user->role == 1): ?>
+                            <?php if ($role->id != session()->user->role || session()->user->role == 1): ?>
                             <div class="col-6 border-right">
                                 <a href="<?= url("admin/role/{$role->id}/edit") ?>">
                                     <?= icon("pencil") ?>
@@ -44,18 +44,18 @@
                                     <?= icon("x-circle") ?>
                                 </a>
                             </div>
-                            <? else: ?>
+                            <?php else: ?>
                                 <div class="col-12">
                                     <small><b>You can't manipulate your own role</b></small>
                                 </div>
-                            <? endif; ?>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>
-            <? endforeach; ?>
-            <? else: ?>
+            <?php endforeach; ?>
+            <?php else: ?>
                 <tr><td colspan="3"><h4>EDITABLE ROLES NOT FOUND!</h4></td></tr>
-            <? endif; ?>
+            <?php endif; ?>
             </tbody>
         </table>
     </div>

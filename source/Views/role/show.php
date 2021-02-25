@@ -15,7 +15,7 @@
         <th>Action</th>
         </thead>
         <tbody>
-        <? foreach ($permissions as $permission): ?>
+        <?php foreach ($permissions as $permission): ?>
         <tr>
             <td><?= $permission->id ?></td>
             <td><?= $permission->route ?></td>
@@ -23,7 +23,7 @@
             <td><?= $permission->handler ?></td>
             <td><?= $permission->action ?></td>
         </tr>
-        <? endforeach; ?>
+        <?php endforeach; ?>
         </tbody>
     </table>
 </div>

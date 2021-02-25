@@ -21,16 +21,16 @@
             <div class="form-group">
                 <label for="role">Role</label>
                 <select class="form-control" name="role" id="role">
-                    <? foreach ($roles as $role): ?>
-                    <option value="<?= $role->id ?>"<? if ($role->id == $user->role):?> selected <? endif;?>>
+                    <?php foreach ($roles as $role): ?>
+                    <option value="<?= $role->id ?>"<?php if ($role->id == $user->role): ?> selected <?php endif; ?>>
                         <?= $role->name ?>
                     </option>
-                    <? endforeach; ?>
+                    <?php endforeach; ?>
                 </select>
             </div>
-            <? if ($user->image ): ?>
+            <?php if ($user->image ): ?>
             <img src="<?= url($user->image) ?>" alt="profile" width="72" height="72">
-            <? endif; ?>
+            <?php endif; ?>
             <div class="form-group">
                 <label for="image">Profile Image</label>
                 <input class="form-control-file" type="file" name="image" id="image">
@@ -42,12 +42,12 @@
                         <label for="authorized">Authorize resource access</label>
                         <select name="authorized[]" id="authorized" multiple>
                             <option value="0" selected disabled>AUTHORIZED ROUTES</option>
-                            <? foreach ($permissions as $p): ?>
+                            <?php foreach ($permissions as $p): ?>
                                 <option value="<?= $p->id ?>"
-                                    <?if(in_array($p->id,$authorized)):?> selected<?endif;?>>
+                                    <?php if(in_array($p->id,$authorized)): ?> selected<?php endif; ?>>
                                     <?= $p->route ?>
                                 </option>
-                            <? endforeach; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
@@ -57,12 +57,12 @@
                         <label for="unauthorized">Unauthorize resource access</label>
                         <select name="unauthorized[]" id="unauthorized" multiple>
                             <option value="0" selected disabled>UNAUTHORIZED ROUTES</option>
-                            <? foreach ($permissions as $p): ?>
+                            <?php foreach ($permissions as $p): ?>
                                 <option value="<?= $p->id ?>"
-                                    <?if(in_array($p->id,$unauthorized)):?> selected<?endif;?>>
+                                    <?php if(in_array($p->id,$unauthorized)): ?> selected<?php endif; ?>>
                                     <?= $p->route ?>
                                 </option>
-                            <? endforeach; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>

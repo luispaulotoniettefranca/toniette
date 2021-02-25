@@ -30,7 +30,7 @@
                 <th>Actions</th>
             </thead>
             <tbody>
-            <? foreach ($users as $user): ?>
+            <?php foreach ($users as $user): ?>
                 <tr>
                     <td><?= $user->id ?></td>
                     <td><?= $user->name ?></td>
@@ -51,7 +51,7 @@
                         </div>
                     </td>
                 </tr>
-            <? endforeach; ?>
+            <?php endforeach; ?>
             </tbody>
         </table>
     </div>
