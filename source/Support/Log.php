@@ -25,9 +25,9 @@ class Log extends Logger
         parent::__construct("log");
         if (CONF_DEBUG) {
             $this->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
-            $this->pushHandler(new StreamHandler(CONF_LOG_PATH."/info_log.log", Logger::INFO));
+            $this->pushHandler(new StreamHandler(CONF_LOG_PATH."/info.log", Logger::INFO));
         } else {
-            $this->pushHandler(new StreamHandler(CONF_LOG_PATH."/error_log.log", Logger::WARNING));
+            $this->pushHandler(new StreamHandler(CONF_LOG_PATH."/error.log", Logger::WARNING));
             $this->pushHandler(new NativeMailerHandler(CONF_WEBMASTER_CONTACT,
                 "Critical Failure on ".CONF_URL_BASE, CONF_WEBMASTER_CONTACT, Logger::WARNING));
             $tlgHandler = new TelegramBotHandler(CONF_TELEGRAM_KEY, CONF_TELEGRAM_GROUP,
