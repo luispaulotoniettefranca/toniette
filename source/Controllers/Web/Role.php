@@ -46,10 +46,17 @@ class Role extends \Source\Core\Controller implements ResourceInterface
         }
         $rolePermissions = (new RolePermission())->find("role = :r",
             ["r" => $role->id], "permission")->fetch(true);
+        if (!$rolePermissions) {
+            logger()->error("ROLE PERMISSIONS NOT FOUND", [
+                "AGENT" => session()->user,
+                "REQUEST" => $req(),
+            ]);
+            redirect("error/404/" . urlencode("Can't show role details. Role permission(s) not found"));
+        }
         $permissions = [];
         foreach ($rolePermissions as $rp) {
             $permission = (new Permission())->findById($rp->permission);
-            if (!$permissions) {
+            if (!$permission) {
                 logger()->error("ROLE PERMISSION(S) NOT FOUND", [
                     "AGENT" => session()->user,
                     "REQUEST" => $req(),
