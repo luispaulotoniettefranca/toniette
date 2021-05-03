@@ -4,7 +4,7 @@ FROM php:8.0.3-fpm
 RUN apt-get update && apt-get install -y git
 
 # Install PHP extensions
-#RUN docker-php-ext-install
+RUN docker-php-ext-install pdo_mysql
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

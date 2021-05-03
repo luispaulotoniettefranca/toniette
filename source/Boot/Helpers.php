@@ -6,6 +6,8 @@
  * ####################
  */
 
+use Source\Core\Response;
+use Source\Models\User;
 use Toniette\Router\Router;
 use JetBrains\PhpStorm\NoReturn;
 use JetBrains\PhpStorm\Pure;
@@ -47,7 +49,7 @@ function url(string $path = null): string
  * @param string $theme
  * @return string
  */
-function asset(string $path = null, $theme = CONF_THEME): string
+function asset(string $path = null, string $theme = CONF_THEME): string
 {
     return CONF_URL_BASE . "/theme/{$theme}" . "/assets/" . ($path[0] == "/" ? mb_substr($path, 1) : $path);
 }
@@ -55,12 +57,12 @@ function asset(string $path = null, $theme = CONF_THEME): string
 /**
  * @param string|null $path
  * @param string $theme
- * @return string
+ * @return void
  */
-function icon(string $path = null, $theme = CONF_THEME): string
+function icon(string $path = null, string $theme = CONF_THEME)
 {
-    return file_get_contents(CONF_URL_BASE . "/theme/{$theme}" .
-            "/assets/icons/" . ($path[0] == "/" ? mb_substr($path, 1) : $path) . ".svg");
+    include CONF_BASE_DIR . "/theme/{$theme}" .
+            "/assets/icons/" . ($path[0] == "/" ? mb_substr($path, 1) : $path) . ".svg";
 }
 
 
@@ -213,9 +215,9 @@ function str_limit_chars(string $string, int $limit, string $pointer = "..."): s
  * ################
  */
 
-#[Pure] function response(): \Source\Core\Response
+#[Pure] function response(): Response
 {
-    return new \Source\Core\Response();
+    return new Response();
 }
 
 /**
@@ -232,11 +234,11 @@ function request(array $body): Request
  * ###   "FACADES"   ###
  * #####################
  * @param string $route
- * @param $user
+ * @param User $user
  * @return Authorization
  */
 
-function authorization(string $route, \Source\Models\User $user): Authorization
+function authorization(string $route, User $user): Authorization
 {
     return new Authorization($route, $user);
 }
@@ -405,4 +407,14 @@ function logger(): Log
 function cache(): \Doctrine\Common\Cache\PhpFileCache
 {
     return new \Doctrine\Common\Cache\PhpFileCache(CONF_CACHE_PATH);
+}
+
+/**
+ * ################
+ * ###   ENV   ###
+ * ###############
+ */
+function dotenv(): \Dotenv\Dotenv
+{
+    return Dotenv\Dotenv::createImmutable(CONF_BASE_DIR . "/.env");
 }

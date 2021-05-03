@@ -1,22 +1,24 @@
 {
     "name": "toniette/toniette",
+    "description": "A simple framework!",
     "require": {
         "php": "8.*",
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-readline": "*",
+        "ext-mysql_xdevapi": "*",
         "toniette/optimizer": "dev-master",
         "toniette/uploader": "dev-master",
         "toniette/datalayer": "dev-master",
         "toniette/paginator": "dev-master",
         "toniette/cropper": "dev-master",
+        "toniette/router": "dev-master",
+        "vlucas/phpdotenv": ">=5.2",
         "matthiasmullie/minify": ">=1.3.66",
         "league/plates": "^3.3",
         "monolog/monolog": ">=2.2.0",
         "doctrine/cache": "^1.10",
-        "robmorgan/phinx": "^0.12.5",
-        "toniette/router": "dev-master",
-        "ext-mysql_xdevapi": "*"
+        "robmorgan/phinx": "^0.12.5"
     },
     "autoload": {
         "psr-4": {
