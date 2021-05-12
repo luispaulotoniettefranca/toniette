@@ -127,8 +127,8 @@ header("Access-Control-Allow-Methods: *");
 /**
  * LOG
  */
-const CONF_TELEGRAM_KEY = "1518972587:AAGCD40vL3_xFnxO26yi6k5tSIrDMLbNc7E";
-const CONF_TELEGRAM_GROUP = "-1001359255857";
+const CONF_TELEGRAM_KEY = "";
+const CONF_TELEGRAM_GROUP = "";
 const CONF_LOG_PATH = "storage/logs";
 
 
